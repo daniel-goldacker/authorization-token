@@ -21,6 +21,11 @@ class DBConnector:
             self.__cursor.execute(create)
 
 
-        def executeCommand(self, sql):
-            self.__cursor.execute(sql)
+        def executeCommand(self, command):
+            self.__cursor.execute(command)
             self.__connection.commit()
+
+
+        def executeQuery(self, sql):
+            self.__cursor.execute(sql)
+            return self.__cursor.fetchall()
