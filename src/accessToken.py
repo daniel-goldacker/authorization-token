@@ -1,4 +1,5 @@
 import jwt
+import pytz
 from datetime import datetime, timedelta
 from util.dbConnector import DBConnector
 from models.accessTokenModel import AccessTokenModel
@@ -7,21 +8,14 @@ from config import ConfigFiles
 class AccessToken:
     def generate():
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
-        expireToken = datetime.now() + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos
+        expireToken = datetime.utcnow() + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
-        informacoes_usuario = {
-            'id': 123,
-            'nome': 'Exemplo',
-            'email': 'exemplo@email.com',
-            'exp': expireToken.isoformat()  
-        }
-
-        # Gerando o token JWT com as informações do usuário
-        tokenJWT = jwt.encode(informacoes_usuario, privateKey, algorithm='HS256')
+        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', expireToken)
         
-
-
+        # Gerando o token JWT com as informações do usuário
+        tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
+        
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
         sqlite.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
@@ -29,10 +23,15 @@ class AccessToken:
                                     exp DATETIME
                                 )
                             ''')
-        sqlite.executeCommand("INSERT INTO tokens (token, exp) VALUES ('" + tokenJWT + "', '" + expireToken.strftime('%d/%m/%Y %H:%M:%S') + "')")
-        sqlite.closeConnection()
+        
+
+        brazilTimeZone = pytz.timezone(ConfigFiles.BRAZIL_TIME_ZONE)
+        expireTokenBrazil = expireToken.replace(tzinfo=pytz.utc).astimezone(brazilTimeZone)
+
+        sqlite.executeCommand("INSERT INTO tokens (token, exp) VALUES ('" + tokenJWT + "', '" + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
+
      
-        return AccessTokenModel.response(tokenJWT,expireToken.strftime('%d/%m/%Y %H:%M:%S'))
+        return AccessTokenModel.response(tokenJWT, expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
     def valid(tokenJWT):
@@ -52,14 +51,8 @@ class AccessToken:
     def decode(tokenJWT):
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
 
-        try:
-            # Decodificando o token usando a mesma chave secreta
+        if AccessToken.valid(tokenJWT):
             informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithms=['HS256'])
-            
-            # Exibindo as informações decodificadas
-            print("Informações do usuário:")
-            print(informacoes_decodificadas)
-        except jwt.ExpiredSignatureError:
-            print("Token expirado. Por favor, gere um novo token.")
-        except jwt.InvalidTokenError:
-            print("Token inválido. Verifique a chave secreta ou o formato do token.")
+            return informacoes_decodificadas 
+        else:
+            return False

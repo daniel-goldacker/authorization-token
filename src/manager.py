@@ -1,13 +1,18 @@
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Header
 from accessToken import AccessToken
 
 app = FastAPI()
 
 # Rota para retornar uma mensagem simples
 @app.post('/token')
-def integration(response: Response):
+def generateAccessToken(response: Response):
     data = AccessToken.generate()
+    return data
+
+@app.get('/userinfo')
+def getUserInfo(authorization: str = Header(None, convert_underscores=False)):
+    data = AccessToken.decode(authorization)
     return data
 
 
