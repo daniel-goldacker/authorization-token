@@ -12,5 +12,4 @@ class AccessTokenModel :
             'email': email,
             'iat': iat, 
             'exp': exp
-            
         }
