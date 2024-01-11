@@ -12,6 +12,13 @@ class DBConnector:
             self.__connection = sqlite3.connect(self.database)
             self.__cursor =  self.__connection.cursor()
 
+            self.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
+                                    token TEXT PRIMARY KEY,
+                                    iat DATETIME,
+                                    exp DATETIME
+                                )
+                            ''')
+
 
         def closeConnection(self):
             self.__connection.close()
