@@ -22,7 +22,7 @@ class AccessToken:
         
 
 
-        sqlite = DBConnector.SQLite('src/database/authenticator.db')
+        sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
         sqlite.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
                                     token TEXT PRIMARY KEY,
