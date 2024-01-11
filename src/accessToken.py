@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from util.dbConnector import DBConnector
 from util.dtConvert import DTConvert 
+from util.bsException import BSException
 from models.accessTokenModel import AccessTokenModel
 from config import ConfigFiles
 
@@ -56,4 +57,4 @@ class AccessToken:
             informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithms=['HS256'])
             return informacoes_decodificadas 
         else:
-            raise RuntimeError('Token is not valid')
+            raise BSException(error="Token is not valid", statusCode=401)
