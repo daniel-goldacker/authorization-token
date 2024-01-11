@@ -33,6 +33,21 @@ class AccessToken:
         sqlite.closeConnection()
      
         return AccessTokenModel.response(tokenJWT,expireToken.strftime('%d/%m/%Y %H:%M:%S'))
+
+
+    def valid(tokenJWT):
+        sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
+        sqlite.openConnection()
+        results = sqlite.executeQuery("SELECT token, exp FROM tokens where token = '"  + tokenJWT + "'")
+        if results:
+            dateExpireToken = datetime.strptime(results[1], '%d/%m/%Y %H:%M:%S')
+            if (datetime.now() <= dateExpireToken):
+                return True
+            else:
+                return False
+        else:
+          return False      
+
     
     def decode(tokenJWT):
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token

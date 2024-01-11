@@ -28,4 +28,4 @@ class DBConnector:
 
         def executeQuery(self, sql):
             self.__cursor.execute(sql)
-            return self.__cursor.fetchall()
+            return self.__cursor.fetchone()
