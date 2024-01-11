@@ -5,12 +5,12 @@ from accessToken import AccessToken
 app = FastAPI()
 
 # Rota para retornar uma mensagem simples
-@app.post('/token')
+@app.post('/oauth/token')
 def generateAccessToken(response: Response):
     data = AccessToken.generate()
     return data
 
-@app.get('/userinfo')
+@app.get('/oauth/userinfo')
 def getUserInfo(authorization: str = Header(None, convert_underscores=False)):
     data = AccessToken.decode(authorization)
     return data
