@@ -1,17 +1,22 @@
 import jwt
-import pytz
 from datetime import datetime, timedelta
 from util.dbConnector import DBConnector
+from util.dtConvert import DTConvert 
 from models.accessTokenModel import AccessTokenModel
 from config import ConfigFiles
 
 class AccessToken:
     def generate():
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
-        expireToken = datetime.utcnow() + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos
+        
+        dateNowUTC = datetime.utcnow()
+        dateNowBrazil = DTConvert.dateUtcToDateTimeZone(dateNowUTC, ConfigFiles.BRAZIL_TIME_ZONE)
+
+        expireToken = dateNowUTC + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos         
+        expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE) # Tempo de expiração do token em minutos 
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
-        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', expireToken)
+        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', dateNowUTC, expireToken)
         
         # Gerando o token JWT com as informações do usuário
         tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
@@ -20,19 +25,12 @@ class AccessToken:
 
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
-        sqlite.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
-                                    token TEXT PRIMARY KEY,
-                                    exp DATETIME
-                                )
-                            ''')
+
         
-
-        brazilTimeZone = pytz.timezone(ConfigFiles.BRAZIL_TIME_ZONE)
-        expireTokenBrazil = expireToken.replace(tzinfo=pytz.utc).astimezone(brazilTimeZone)
-
-        sqlite.executeCommand("INSERT INTO tokens (token, exp) VALUES ('" + tokenJWT + "', '" + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
-
-     
+        sqlite.executeCommand("INSERT INTO tokens (token, iat, exp) VALUES ('" + tokenJWT + "', '" 
+                              + dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
+                              + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
+ 
         return AccessTokenModel.response(tokenJWT, expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
@@ -54,7 +52,7 @@ class AccessToken:
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
 
         if AccessToken.valid(tokenJWT):
-            informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithms=['HS256'])
+            informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithm='HS256')
             return informacoes_decodificadas 
         else:
             return False
