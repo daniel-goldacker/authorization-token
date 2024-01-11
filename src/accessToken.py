@@ -1,4 +1,5 @@
 import jwt
+import uuid
 from datetime import datetime, timedelta
 from util.dbConnector import DBConnector
 from util.dtConvert import DTConvert 
@@ -16,7 +17,7 @@ class AccessToken:
         expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE) # Tempo de expiração do token em minutos 
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
-        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', dateNowUTC, expireToken)
+        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', dateNowUTC, expireToken, uuid.uuid4().hex)
         
         # Gerando o token JWT com as informações do usuário
         tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
@@ -52,7 +53,7 @@ class AccessToken:
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
 
         if AccessToken.valid(tokenJWT):
-            informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithm='HS256')
+            informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithms=['HS256'])
             return informacoes_decodificadas 
         else:
-            return False
+            raise RuntimeError('Token is not valid')
