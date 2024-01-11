@@ -15,7 +15,9 @@ class AccessToken:
         
         # Gerando o token JWT com as informações do usuário
         tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
-        
+        if isinstance(tokenJWT, bytes):
+            tokenJWT = tokenJWT.decode('utf-8')
+
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
         sqlite.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
