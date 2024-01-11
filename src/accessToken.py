@@ -1,9 +1,10 @@
 import jwt
 from datetime import datetime, timedelta
-from database.sqlite import Sqlite
+from util.dbConnector import DBConnector
+from models.accessTokenModel import AccessTokenModel
 from config import ConfigFiles
 
-class Token:
+class AccessToken:
     def generate():
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
         expireToken = datetime.now() + timedelta(hours=1) # Tempo de expiração do token (1 hora a partir de agora)
@@ -20,20 +21,18 @@ class Token:
         tokenJWT = jwt.encode(informacoes_usuario, privateKey, algorithm='HS256')
         
 
-        sqlite = Sqlite('authenticator.db')
+
+        sqlite = DBConnector.SQLite('src/database/authenticator.db')
         sqlite.openConnection()
         sqlite.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    token TEXT,
+                                    token TEXT PRIMARY KEY,
                                     exp DATETIME
                                 )
                             ''')
         sqlite.executeCommand("INSERT INTO tokens (token, exp) VALUES ('" + tokenJWT + "', '" + expireToken.strftime('%d/%m/%Y %H:%M:%S') + "')")
         sqlite.closeConnection()
-
-        jsonResponse = {'token': tokenJWT, 'expire-date': expireToken.strftime('%d/%m/%Y %H:%M:%S')}
-
-        return jsonResponse
+     
+        return AccessTokenModel.response(tokenJWT,expireToken.strftime('%d/%m/%Y %H:%M:%S'))
     
     def decode(tokenJWT):
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
