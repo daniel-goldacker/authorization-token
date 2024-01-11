@@ -7,7 +7,7 @@ from config import ConfigFiles
 class AccessToken:
     def generate():
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
-        expireToken = datetime.now() + timedelta(hours=1) # Tempo de expiração do token (1 hora a partir de agora)
+        expireToken = datetime.now() + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
         informacoes_usuario = {
