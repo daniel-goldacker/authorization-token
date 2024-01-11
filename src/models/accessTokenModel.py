@@ -5,10 +5,12 @@ class AccessTokenModel :
             'expire-date': expireDate
         }
     
-    def userInfo(id, nome, email, exp):
+    def userInfo(id, nome, email, iat, exp):
         return {
             'id': id,
             'nome': nome,
             'email': email,
-            'exp': exp 
+            'iat': iat, 
+            'exp': exp
+            
         }
