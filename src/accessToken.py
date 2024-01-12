@@ -22,10 +22,10 @@ class AccessToken:
         expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE) # Tempo de expiração do token em minutos 
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
-        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', createdDateUTC, expireToken, uuid.uuid4().hex)
+        userInfos = AccessTokenModel.UserInfo(id=123, nome='Exemplo', email='exemplo@email.com', iat=createdDateUTC, exp=expireToken, uuid=uuid.uuid4().hex)
         
         # Gerando o token JWT com as informações do usuário
-        tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
+        tokenJWT = jwt.encode(userInfos.model_dump(), privateKey, algorithm='HS256')
         if isinstance(tokenJWT, bytes):
             tokenJWT = tokenJWT.decode('utf-8')
 
@@ -36,7 +36,9 @@ class AccessToken:
                               + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
         sqlite.closeConnection()
  
-        return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT,createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
+        
+        
+        return AccessTokenModel.Response(token_type=ConfigFiles.TOKEN_TYPE, token=tokenJWT, created_date=createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), expire_date=expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
     def valid(tokenJWT):

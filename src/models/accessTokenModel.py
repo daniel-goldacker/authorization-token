@@ -1,18 +1,17 @@
+from pydantic import BaseModel
+from datetime import datetime, date
+
 class AccessTokenModel : 
-    def response(tokenType, token, createdDate, expireDate):
-        return {
-            'token-type': tokenType,
-            'token': token, 
-            'created-date': createdDate,
-            'expire-date': expireDate
-        }
-    
-    def userInfo(id, nome, email, iat, exp, uuid):
-        return {
-            'id': id,
-            'nome': nome,
-            'email': email,
-            'iat': iat, 
-            'exp': exp,
-            'uuid': uuid
-        }
+    class Response(BaseModel):
+        token_type: str
+        token: str
+        created_date: str
+        expire_date: str
+
+    class UserInfo(BaseModel):
+        id: int
+        nome: str
+        email: str
+        iat: datetime
+        exp: datetime
+        uuid: str
