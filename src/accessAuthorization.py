@@ -1,8 +1,8 @@
 import uuid
+from config import ConfigFiles
 from util.dbConnector import DBConnector
 from util.bsException import BSException
 from models.accessAuthorizationModel import AccessAuthorizationModel
-from config import ConfigFiles
 
 class AccessAuthorization:
     def create(name, email, appName, appDescription):  
@@ -27,30 +27,26 @@ class AccessAuthorization:
                                                 grant_type=ConfigFiles.AUTHORIZATION_GRANT_TYPE, scope=ConfigFiles.AUTHORIZATION_SCOPE)
     
 
-    def valid(clientId, clientSecret, grant_type, scope):
-
-        if (clientId is None) or (clientId == ''):
-            raise BSException(error="The request body must contain the following parameter: 'client_id'", statusCode=400)
-        elif (clientSecret is None) or (clientSecret == ''):
-            raise BSException(error="The request body must contain the following parameter: 'client_secret'", statusCode=400)
-        elif (grant_type is None) or (grant_type == ''):
-            raise BSException(error="The request body must contain the following parameter: 'grant_type'", statusCode=400)
-        elif (grant_type != ConfigFiles.AUTHORIZATION_GRANT_TYPE):
-            raise BSException(error="The app requested an unsupported grant type '" + grant_type + "'", statusCode=400)
+    def valid(clientId, clientSecret, grantType, scope):
+        if (grantType != ConfigFiles.AUTHORIZATION_GRANT_TYPE):
+            raise BSException(error="The app requested an unsupported grant type '" + grantType + "'", statusCode=400)
         elif (scope is None) or (scope == ''):
             raise BSException(error="The request body must contain the following parameter: 'scope'", statusCode=400)
         elif (scope != ConfigFiles.AUTHORIZATION_SCOPE):
-            raise BSException(error="The provided value for scope '" + scope + "' is not valid'" + grant_type + "'", statusCode=400)
+            raise BSException(error="The provided value for scope '" + scope + "' is not valid'", statusCode=400)
         
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
-        results = sqlite.executeQuery("SELECT application_name FROM authorization where client_id = '"  + clientId + "' and client_secret = '" + clientSecret + "'")
+        results = sqlite.executeQuery("SELECT client_secret, status FROM authorization where client_id = '"  + clientId + "'")
         sqlite.closeConnection()
         if results:
-            if (results[0] is not None):
-                return True
+            if (results[0] == clientSecret):
+                if (results[1] == ConfigFiles.AUTHORIZATION_STATUS):
+                    return True
+                else:
+                    raise BSException(error="Application with identifier '" + clientId + "' is not '" + ConfigFiles.AUTHORIZATION_STATUS + "'", statusCode=400)    
             else:
-                return False
+                raise BSException(error="Invalid client secret provided. Ensure the secret being sent in the request is the client secret value, not the client secret ID, for a secret added to app '" + clientId + "'", statusCode=400)
         else:
-          return False      
+          raise BSException(error="Application with identifier '" + clientId + "' was not found in the directory", statusCode=400)      
     

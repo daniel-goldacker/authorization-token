@@ -1,5 +1,6 @@
 import uvicorn
-from fastapi import FastAPI, Response, Header
+from typing import Annotated
+from fastapi import FastAPI, Header, Form
 from fastapi.responses import JSONResponse
 from accessToken import AccessToken
 from accessAuthorization import AccessAuthorization
@@ -9,8 +10,8 @@ from models.accessAuthorizationModel import AccessAuthorizationModel
 app = FastAPI()
 
 @app.post('/oauth/token')
-def generateAccessToken(response: Response):
-    data = AccessToken.generate()
+def generateAccessToken(client_id: Annotated[str, Form()], client_secret: Annotated[str, Form()], grant_type: Annotated[str, Form()], scope: Annotated[str, Form()]):
+    data = AccessToken.generate(client_id, client_secret, grant_type, scope)
     return data
 
 
