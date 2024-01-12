@@ -35,7 +35,7 @@ class AccessToken:
                               + dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
                               + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
  
-        return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT, expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
+        return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT,dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S'), expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
     def valid(tokenJWT):

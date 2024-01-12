@@ -1,8 +1,9 @@
 class AccessTokenModel : 
-    def response(tokenType, token, expireDate):
+    def response(tokenType, token, createdDate, expireDate):
         return {
             'token-type': tokenType,
             'token': token, 
+            'created-date': createdDate,
             'expire-date': expireDate
         }
     
