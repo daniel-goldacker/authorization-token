@@ -40,9 +40,12 @@ class AccessToken:
 
 
     def valid(tokenJWT):
-         # Verifica se o token começa com "Bearer "
-        if not tokenJWT.startswith(ConfigFiles.TOKEN_TYPE_SPACE):
-                raise BSException(error="Token must start with '" + ConfigFiles.TOKEN_TYPE_SPACE + "'", statusCode=401)
+        if (tokenJWT is None):
+            raise BSException(error="Authorization is required", statusCode=401)
+        elif (tokenJWT == ''):
+            raise BSException(error="Token is required", statusCode=401)
+        elif not tokenJWT.startswith(ConfigFiles.TOKEN_TYPE_SPACE):
+            raise BSException(error="Token must start with '" + ConfigFiles.TOKEN_TYPE_SPACE + "'", statusCode=401)
         else:
             tokenJWT = removeTokenType(tokenJWT)
     
