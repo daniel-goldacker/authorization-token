@@ -5,8 +5,9 @@ from fastapi.responses import JSONResponse
 from accessToken import AccessToken
 from accessAuthorization import AccessAuthorization
 from util.bsException import BSException
-from models.accessAuthorizationModel import AccessAuthorizationModel
+from models.userInfoModel import UserInfoModel
 from models.accessTokenModel import AccessTokenModel
+from models.accessAuthorizationModel import AccessAuthorizationModel
 
 app = FastAPI(
     title="AuthorizationToken",
@@ -25,7 +26,7 @@ def generateAccessToken(client_id: Annotated[str, Form()], client_secret: Annota
     return data
 
 
-@app.get('/oauth/userinfo', tags=["token"], name='fetch token information', response_model=AccessTokenModel.UserInfo)
+@app.get('/oauth/userinfo', tags=["token"], name='fetch token information', response_model=UserInfoModel.Response)
 def getUserInfo(authorization: str = Header(None, convert_underscores=False)):
     data = AccessToken.decode(authorization)
     return data

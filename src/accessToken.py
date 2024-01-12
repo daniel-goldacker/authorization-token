@@ -6,6 +6,7 @@ from util.dbConnector import DBConnector
 from util.dtConvert import DTConvert 
 from util.bsException import BSException
 from models.accessTokenModel import AccessTokenModel
+from models.userInfoModel import UserInfoModel
 from accessAuthorization import AccessAuthorization
 
 def removeTokenType(tokenJWT):
@@ -24,10 +25,10 @@ class AccessToken:
 
             authorizationInfos = AccessAuthorization.getAuthorizationInfos(clientId, clientSecret)
             
-            userInfos = AccessTokenModel.UserInfo(uuid=uuid.uuid4().hex, nome=authorizationInfos.name, email=authorizationInfos.email, 
-                                                  application_name=authorizationInfos.application_name, 
-                                                  application_description=authorizationInfos.application_description, 
-                                                  iat=createdDateUTC, exp=expireToken)
+            userInfos = UserInfoModel.Request(uuid=uuid.uuid4().hex, nome=authorizationInfos.name, email=authorizationInfos.email, 
+                                              application_name=authorizationInfos.application_name, 
+                                              application_description=authorizationInfos.application_description, 
+                                              iat=createdDateUTC, exp=expireToken)
             
             tokenJWT = jwt.encode(userInfos.model_dump(), ConfigFiles.PRIVATE_KEY, algorithm='HS256')
             if isinstance(tokenJWT, bytes):
@@ -72,6 +73,19 @@ class AccessToken:
         if AccessToken.valid(tokenJWT):
             tokenJWT = removeTokenType(tokenJWT)
             codedInformation = jwt.decode(tokenJWT, ConfigFiles.PRIVATE_KEY, algorithms=['HS256'])
-            return codedInformation 
+
+            iat = datetime.utcfromtimestamp(codedInformation['iat'])
+            iat = DTConvert.dateUtcToDateTimeZone(iat, ConfigFiles.BRAZIL_TIME_ZONE)
+
+            exp = datetime.utcfromtimestamp(codedInformation['exp'])
+            exp = DTConvert.dateUtcToDateTimeZone(exp, ConfigFiles.BRAZIL_TIME_ZONE)
+
+            return UserInfoModel.Response(uuid=codedInformation['uuid'], 
+                                             nome=codedInformation['nome'], 
+                                             email=codedInformation['email'], 
+                                             application_name=codedInformation['application_name'], 
+                                             application_description=codedInformation['application_description'], 
+                                             iat=iat.strftime('%d/%m/%Y %H:%M:%S'), 
+                                             exp=exp.strftime('%d/%m/%Y %H:%M:%S')) 
         else:
             raise BSException(error="Token is not valid", statusCode=401)
