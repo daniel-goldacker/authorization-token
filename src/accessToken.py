@@ -27,7 +27,6 @@ class AccessToken:
 
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
-
         
         sqlite.executeCommand("INSERT INTO tokens (token, iat, exp) VALUES ('" + tokenJWT + "', '" 
                               + dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
