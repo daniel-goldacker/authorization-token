@@ -7,8 +7,9 @@ from util.bsException import BSException
 from models.accessTokenModel import AccessTokenModel
 from config import ConfigFiles
 
-def removeBearer(tokenJWT):
-    return tokenJWT.replace("Bearer ", "")
+def removeTokenType(tokenJWT):
+    return tokenJWT.replace(ConfigFiles.TOKEN_TYPE_SPACE, "")
+
 
 class AccessToken:
     def generate():
@@ -39,11 +40,11 @@ class AccessToken:
 
 
     def valid(tokenJWT):
-         # Verifica se o token começa com "Bearer"
-        if not tokenJWT.startswith("Bearer "):
-                raise BSException(error="Token must start with 'Bearer '", statusCode=401)
+         # Verifica se o token começa com "Bearer "
+        if not tokenJWT.startswith(ConfigFiles.TOKEN_TYPE_SPACE):
+                raise BSException(error="Token must start with '" + ConfigFiles.TOKEN_TYPE_SPACE + "'", statusCode=401)
         else:
-            tokenJWT = removeBearer(tokenJWT)
+            tokenJWT = removeTokenType(tokenJWT)
     
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
@@ -63,7 +64,7 @@ class AccessToken:
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
 
         if AccessToken.valid(tokenJWT):
-            tokenJWT = removeBearer(tokenJWT)
+            tokenJWT = removeTokenType(tokenJWT)
             informacoes_decodificadas = jwt.decode(tokenJWT, privateKey, algorithms=['HS256'])
             return informacoes_decodificadas 
         else:
