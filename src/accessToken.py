@@ -35,22 +35,19 @@ class AccessToken:
                               + createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
                               + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
         sqlite.closeConnection()
- 
-        
-        
         return AccessTokenModel.Response(token_type=ConfigFiles.TOKEN_TYPE, token=tokenJWT, created_date=createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), expire_date=expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
     def valid(tokenJWT):
-        if (tokenJWT is None):
-            raise BSException(error="Authorization is required", statusCode=401)
-        elif (tokenJWT == ''):
-            raise BSException(error="Token is required", statusCode=401)
+        if (tokenJWT is None) or (tokenJWT == ''):
+            raise BSException(error="The request header must contain the following parameter: 'Authorization'", statusCode=401)
         elif not tokenJWT.startswith(ConfigFiles.TOKEN_TYPE_SPACE):
             raise BSException(error="Token must start with '" + ConfigFiles.TOKEN_TYPE_SPACE + "'", statusCode=401)
         else:
             tokenJWT = removeTokenType(tokenJWT)
     
+ 
+
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
         results = sqlite.executeQuery("SELECT token, exp FROM tokens where token = '"  + tokenJWT + "'")
