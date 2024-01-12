@@ -14,14 +14,14 @@ class AccessToken:
     def generate():
         privateKey = ConfigFiles.PRIVATE_KEY # Chave secreta para assinar o token
         
-        dateNowUTC = datetime.utcnow()
-        dateNowBrazil = DTConvert.dateUtcToDateTimeZone(dateNowUTC, ConfigFiles.BRAZIL_TIME_ZONE)
+        createdDateUTC = datetime.utcnow()
+        createdDateBrazil = DTConvert.dateUtcToDateTimeZone(createdDateUTC, ConfigFiles.BRAZIL_TIME_ZONE)
 
-        expireToken = dateNowUTC + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos         
+        expireToken = createdDateUTC + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos         
         expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE) # Tempo de expiração do token em minutos 
 
         # Informações do usuário (pode ser qualquer informação que deseje incluir)
-        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', dateNowUTC, expireToken, uuid.uuid4().hex)
+        userInfos = AccessTokenModel.userInfo(123, 'Exemplo', 'exemplo@email.com', createdDateUTC, expireToken, uuid.uuid4().hex)
         
         # Gerando o token JWT com as informações do usuário
         tokenJWT = jwt.encode(userInfos, privateKey, algorithm='HS256')
@@ -32,10 +32,10 @@ class AccessToken:
         sqlite.openConnection()
         
         sqlite.executeCommand("INSERT INTO tokens (token, iat, exp) VALUES ('" + tokenJWT + "', '" 
-                              + dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
+                              + createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
                               + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
  
-        return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT,dateNowBrazil.strftime('%d/%m/%Y %H:%M:%S'), expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
+        return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT,createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
 
     def valid(tokenJWT):
