@@ -6,22 +6,33 @@ from accessToken import AccessToken
 from accessAuthorization import AccessAuthorization
 from util.bsException import BSException
 from models.accessAuthorizationModel import AccessAuthorizationModel
+from models.accessTokenModel import AccessTokenModel
 
-app = FastAPI()
+app = FastAPI(
+    title="AuthorizationToken",
+    description="description",
+    summary="summary",
+    version="0.0.1",
+    contact={
+        "name": "Daniel Goldacker",
+        "url": "https://github.com/daniel-goldacker",
+        "email": "daniel-goldacker@hotmail.com",
+    },
+)
 
-@app.post('/oauth/token')
+@app.post('/oauth/token', tags=["token"], name='token generation', response_model=AccessTokenModel.Response)
 def generateAccessToken(client_id: Annotated[str, Form()], client_secret: Annotated[str, Form()], grant_type: Annotated[str, Form()], scope: Annotated[str, Form()]):
     data = AccessToken.generate(client_id, client_secret, grant_type, scope)
     return data
 
 
-@app.get('/oauth/userinfo')
+@app.get('/oauth/userinfo', tags=["token"], name='fetch token information', response_model=AccessTokenModel.UserInfo)
 def getUserInfo(authorization: str = Header(None, convert_underscores=False)):
     data = AccessToken.decode(authorization)
     return data
 
 
-@app.post('/oauth/authorization')
+@app.post('/oauth/authorize', tags=["authorization"], name='obtain authorization to generate the token', response_model=AccessAuthorizationModel.Response)
 def generateAccessAuthorization(request: AccessAuthorizationModel.Request):
     data = AccessAuthorization.create(request.name, request.email, request.application_name, request.application_description)
     return JSONResponse(
