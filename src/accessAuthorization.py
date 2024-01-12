@@ -50,3 +50,16 @@ class AccessAuthorization:
         else:
           raise BSException(error="Application with identifier '" + clientId + "' was not found in the directory", statusCode=400)      
     
+    
+    def getAuthorizationInfos(clientId, clientSecret):
+        sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
+        sqlite.openConnection()
+        results = sqlite.executeQuery("SELECT name, email, status, application_name, " +
+                                              "application_description, client_id, " +
+                                              "client_secret, grant_type, scope " +
+                                            "FROM authorization where client_id = '"  + clientId + "' and client_secret = '" + clientSecret + "'")
+        sqlite.closeConnection()
+        if results:
+            return AccessAuthorizationModel.Response(name=results[0], email=results[1], status=results[2], application_name=results[3],  application_description=results[4],
+                                                     client_id=results[5], client_secret=results[6], grant_type=results[7], scope=results[8])
+      

@@ -24,8 +24,15 @@ class AccessToken:
             expireToken = createdDateUTC + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES) # Tempo de expiração do token em minutos         
             expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE) # Tempo de expiração do token em minutos 
 
+        
+            # Busca informações do client_id e client_secret para gerar o payload do token
+            authorizationInfos = AccessAuthorization.getAuthorizationInfos(clientId, clientSecret)
+            
             # Informações do usuário (pode ser qualquer informação que deseje incluir)
-            userInfos = AccessTokenModel.UserInfo(id=123, nome='Exemplo', email='exemplo@email.com', iat=createdDateUTC, exp=expireToken, uuid=uuid.uuid4().hex)
+            userInfos = AccessTokenModel.UserInfo(uuid=uuid.uuid4().hex, nome=authorizationInfos.name, email=authorizationInfos.email, 
+                                                  application_name=authorizationInfos.application_name, 
+                                                  application_description=authorizationInfos.application_description, 
+                                                  iat=createdDateUTC, exp=expireToken)
             
             # Gerando o token JWT com as informações do usuário
             tokenJWT = jwt.encode(userInfos.model_dump(), privateKey, algorithm='HS256')

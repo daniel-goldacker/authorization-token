@@ -9,9 +9,11 @@ class AccessTokenModel :
         expire_date: str
 
     class UserInfo(BaseModel):
-        id: int
+        uuid: str
         nome: str
         email: str
+        application_name: str
+        application_description: str
         iat: datetime
         exp: datetime
-        uuid: str
+        
