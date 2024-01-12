@@ -39,3 +39,17 @@ def initialProcess(self):
                                                 exp DATETIME
                                             )
                                     ''')
+    
+    self.createTable(''' CREATE TABLE IF NOT EXISTS authorization (
+                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                name TEXT,
+                                                email TEXT,
+                                                status TEXT,
+                                                application_name TEXT,
+                                                application_description TEXT,
+                                                client_id TEXT,
+                                                client_secret TEXT,
+                                                grant_type TEXT,
+                                                scope TEXT
+                                            )
+                                    ''')
