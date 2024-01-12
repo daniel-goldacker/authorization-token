@@ -10,8 +10,7 @@ from models.accessTokenModel import AccessTokenModel
 
 app = FastAPI(
     title="AuthorizationToken",
-    description="description",
-    summary="summary",
+    description="This application 'AuthorizationToken', provides endpoints for token generation and authorization. It supports functionalities related to OAuth 2.0, allowing clients to obtain access tokens and authorization to access protected resources. The application is versioned as 0.0.1 and is authored by Daniel Goldacker.",
     version="0.0.1",
     contact={
         "name": "Daniel Goldacker",
