@@ -30,10 +30,10 @@ class AccessToken:
 
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
-        
         sqlite.executeCommand("INSERT INTO tokens (token, iat, exp) VALUES ('" + tokenJWT + "', '" 
                               + createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
                               + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
+        sqlite.closeConnection()
  
         return AccessTokenModel.response(ConfigFiles.TOKEN_TYPE, tokenJWT,createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
 
@@ -48,6 +48,7 @@ class AccessToken:
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
         sqlite.openConnection()
         results = sqlite.executeQuery("SELECT token, exp FROM tokens where token = '"  + tokenJWT + "'")
+        sqlite.closeConnection()
         if results:
             dateExpireToken = datetime.strptime(results[1], '%d/%m/%Y %H:%M:%S')
             if (datetime.now() <= dateExpireToken):
