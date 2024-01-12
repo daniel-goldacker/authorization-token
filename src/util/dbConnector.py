@@ -32,8 +32,9 @@ class DBConnector:
             self.__cursor.execute(sql)
             return self.__cursor.fetchone()
         
+        
 def initialProcess(self):
-    self.createTable(''' CREATE TABLE IF NOT EXISTS tokens (
+    self.createTable(''' CREATE TABLE IF NOT EXISTS token (
                                                 token TEXT PRIMARY KEY,
                                                 iat DATETIME,
                                                 exp DATETIME

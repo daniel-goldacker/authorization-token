@@ -60,6 +60,7 @@ class AccessAuthorization:
                                             "FROM authorization where client_id = '"  + clientId + "' and client_secret = '" + clientSecret + "'")
         sqlite.closeConnection()
         if results:
-            return AccessAuthorizationModel.Response(name=results[0], email=results[1], status=results[2], application_name=results[3],  application_description=results[4],
-                                                     client_id=results[5], client_secret=results[6], grant_type=results[7], scope=results[8])
+            return AccessAuthorizationModel.Response(name=results[0], email=results[1], status=results[2], application_name=results[3], 
+                                                     application_description=results[4], client_id=results[5], client_secret=results[6], 
+                                                     grant_type=results[7], scope=results[8])
       
