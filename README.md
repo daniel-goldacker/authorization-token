@@ -1,7 +1,7 @@
 # authorization-token
 The application "AuthorizationToken" facilitates OAuth 2.0 processes, enabling clients to generate access tokens and obtain authorization for accessing protected resources. It supports endpoints for token generation, fetching token information, and obtaining authorization. The application, version 0.0.1, is developed by Daniel Goldacker. 
 
-<img src=".src/files/authorization-token.png">
+<img src="./files/authorization-token.png">
 
 To run it, follow the steps below:
 
