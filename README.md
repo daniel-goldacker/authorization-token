@@ -1,10 +1,14 @@
 # authorization-token
-The application "AuthorizationToken" facilitates OAuth 2.0 processes, enabling clients to generate access tokens and obtain authorization for accessing protected resources. It supports endpoints for token generation, fetching token information, and obtaining authorization. The application, version 0.0.1, is developed by Daniel Goldacker. To run it, follow the steps below:
+The application "AuthorizationToken" facilitates OAuth 2.0 processes, enabling clients to generate access tokens and obtain authorization for accessing protected resources. It supports endpoints for token generation, fetching token information, and obtaining authorization. The application, version 0.0.1, is developed by Daniel Goldacker. 
+
+<img src="./files/authorization-token.png">
+
+To run it, follow the steps below:
 
 1. Place in directory **./src**:
 ```sh
 cd src
-```
+```s
 2. Install additional libraries:
 ```sh
 pip install -r requirements.txt

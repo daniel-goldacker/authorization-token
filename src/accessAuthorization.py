@@ -1,7 +1,7 @@
 import uuid
 from config import ConfigFiles, ConfigAuthorization
-from util.dbConnector import DBConnector
-from util.bsException import BSException
+from utils.dbConnector import DBConnector
+from utils.bsException import BSException
 from models.accessAuthorizationModel import AccessAuthorizationModel
 
 class AccessAuthorization:

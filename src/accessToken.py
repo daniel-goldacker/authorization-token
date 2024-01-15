@@ -2,9 +2,9 @@ import jwt
 import uuid
 from config import ConfigFiles, ConfigToken
 from datetime import datetime, timedelta
-from util.dbConnector import DBConnector
-from util.dtConvert import DTConvert 
-from util.bsException import BSException
+from utils.dbConnector import DBConnector
+from utils.dtConvert import DTConvert 
+from utils.bsException import BSException
 from models.accessTokenModel import AccessTokenModel
 from models.userInfoModel import UserInfoModel
 from accessAuthorization import AccessAuthorization
