@@ -1,6 +1,6 @@
 import jwt
 import uuid
-from config import ConfigFiles
+from config import ConfigFiles, ConfigToken
 from datetime import datetime, timedelta
 from util.dbConnector import DBConnector
 from util.dtConvert import DTConvert 
@@ -10,7 +10,7 @@ from models.userInfoModel import UserInfoModel
 from accessAuthorization import AccessAuthorization
 
 def removeTokenType(tokenJWT):
-    return tokenJWT.replace(ConfigFiles.TOKEN_TYPE_SPACE, "")
+    return tokenJWT.replace(ConfigToken.TOKEN_TYPE_SPACE, "")
 
 
 class AccessToken:
@@ -20,7 +20,7 @@ class AccessToken:
             createdDateUTC = datetime.utcnow()
             createdDateBrazil = DTConvert.dateUtcToDateTimeZone(createdDateUTC, ConfigFiles.BRAZIL_TIME_ZONE)
 
-            expireToken = createdDateUTC + timedelta(minutes=ConfigFiles.TIME_EXPIRATION_TOKEN_IN_MINUTES)      
+            expireToken = createdDateUTC + timedelta(minutes=ConfigToken.TIME_EXPIRATION_TOKEN_IN_MINUTES)      
             expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE)
 
             authorizationInfos = AccessAuthorization.getAuthorizationInfos(clientId, clientSecret)
@@ -30,7 +30,7 @@ class AccessToken:
                                               application_description=authorizationInfos.application_description, 
                                               iat=createdDateUTC, exp=expireToken)
             
-            tokenJWT = jwt.encode(userInfos.model_dump(), ConfigFiles.PRIVATE_KEY, algorithm='HS256')
+            tokenJWT = jwt.encode(userInfos.model_dump(), ConfigToken.PRIVATE_KEY, algorithm='HS256')
             if isinstance(tokenJWT, bytes):
                 tokenJWT = tokenJWT.decode('utf-8')
 
@@ -40,7 +40,7 @@ class AccessToken:
                                 + createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S') + "', '" 
                                 + expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S') + "')")
             sqlite.closeConnection()
-            return AccessTokenModel.Response(token_type=ConfigFiles.TOKEN_TYPE, token=tokenJWT, 
+            return AccessTokenModel.Response(token_type=ConfigToken.TOKEN_TYPE, token=tokenJWT, 
                                              created_date=createdDateBrazil.strftime('%d/%m/%Y %H:%M:%S'), 
                                              expire_date=expireTokenBrazil.strftime('%d/%m/%Y %H:%M:%S'))
         else:
@@ -50,8 +50,8 @@ class AccessToken:
     def valid(tokenJWT):
         if (tokenJWT is None) or (tokenJWT == ''):
             raise BSException(error="The request header must contain the following parameter: 'Authorization'", statusCode=401)
-        elif not tokenJWT.startswith(ConfigFiles.TOKEN_TYPE_SPACE):
-            raise BSException(error="Token must start with '" + ConfigFiles.TOKEN_TYPE_SPACE + "'", statusCode=401)
+        elif not tokenJWT.startswith(ConfigToken.TOKEN_TYPE_SPACE):
+            raise BSException(error="Token must start with '" + ConfigToken.TOKEN_TYPE_SPACE + "'", statusCode=401)
         else:
             tokenJWT = removeTokenType(tokenJWT)
     
@@ -72,7 +72,7 @@ class AccessToken:
     def decode(tokenJWT):
         if AccessToken.valid(tokenJWT):
             tokenJWT = removeTokenType(tokenJWT)
-            codedInformation = jwt.decode(tokenJWT, ConfigFiles.PRIVATE_KEY, algorithms=['HS256'])
+            codedInformation = jwt.decode(tokenJWT, ConfigToken.PRIVATE_KEY, algorithms=['HS256'])
 
             iat = datetime.utcfromtimestamp(codedInformation['iat'])
             iat = DTConvert.dateUtcToDateTimeZone(iat, ConfigFiles.BRAZIL_TIME_ZONE)

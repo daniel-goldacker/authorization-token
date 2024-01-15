@@ -1,5 +1,5 @@
 import uuid
-from config import ConfigFiles
+from config import ConfigFiles, ConfigAuthorization
 from util.dbConnector import DBConnector
 from util.bsException import BSException
 from models.accessAuthorizationModel import AccessAuthorizationModel
@@ -15,24 +15,24 @@ class AccessAuthorization:
                                                           "application_description, client_id, " +
                                                           "client_secret, grant_type, scope) " +
                                                     "VALUES ('" + name + "', '" + email + "', " 
-                                                            "'" + ConfigFiles.AUTHORIZATION_STATUS + "', "
+                                                            "'" + ConfigAuthorization.AUTHORIZATION_STATUS + "', "
                                                             "'" + appName+ "', '" + appDescription + "', " 
                                                             "'" + clientId+ "', '" + clientSecret + "', "
-                                                            "'" + ConfigFiles.AUTHORIZATION_GRANT_TYPE + "', "
-                                                            "'" + ConfigFiles.AUTHORIZATION_SCOPE + "')")
+                                                            "'" + ConfigAuthorization.AUTHORIZATION_GRANT_TYPE + "', "
+                                                            "'" + ConfigAuthorization.AUTHORIZATION_SCOPE + "')")
         sqlite.closeConnection()
 
         return AccessAuthorizationModel.Response(name=name, email=email, application_name=appName, application_description=appDescription, 
-                                                status=ConfigFiles.AUTHORIZATION_STATUS, client_id=clientId, client_secret=clientSecret, 
-                                                grant_type=ConfigFiles.AUTHORIZATION_GRANT_TYPE, scope=ConfigFiles.AUTHORIZATION_SCOPE)
+                                                status=ConfigAuthorization.AUTHORIZATION_STATUS, client_id=clientId, client_secret=clientSecret, 
+                                                grant_type=ConfigAuthorization.AUTHORIZATION_GRANT_TYPE, scope=ConfigAuthorization.AUTHORIZATION_SCOPE)
     
 
     def valid(clientId, clientSecret, grantType, scope):
-        if (grantType != ConfigFiles.AUTHORIZATION_GRANT_TYPE):
+        if (grantType != ConfigAuthorization.AUTHORIZATION_GRANT_TYPE):
             raise BSException(error="The app requested an unsupported grant type '" + grantType + "'", statusCode=400)
         elif (scope is None) or (scope == ''):
             raise BSException(error="The request body must contain the following parameter: 'scope'", statusCode=400)
-        elif (scope != ConfigFiles.AUTHORIZATION_SCOPE):
+        elif (scope != ConfigAuthorization.AUTHORIZATION_SCOPE):
             raise BSException(error="The provided value for scope '" + scope + "' is not valid'", statusCode=400)
         
         sqlite = DBConnector.SQLite(ConfigFiles.DATABASE_SQLITE)
@@ -41,10 +41,10 @@ class AccessAuthorization:
         sqlite.closeConnection()
         if results:
             if (results[0] == clientSecret):
-                if (results[1] == ConfigFiles.AUTHORIZATION_STATUS):
+                if (results[1] == ConfigAuthorization.AUTHORIZATION_STATUS):
                     return True
                 else:
-                    raise BSException(error="Application with identifier '" + clientId + "' is not '" + ConfigFiles.AUTHORIZATION_STATUS + "'", statusCode=400)    
+                    raise BSException(error="Application with identifier '" + clientId + "' is not '" + ConfigAuthorization.AUTHORIZATION_STATUS + "'", statusCode=400)    
             else:
                 raise BSException(error="Invalid client secret provided. Ensure the secret being sent in the request is the client secret value, not the client secret ID, for a secret added to app '" + clientId + "'", statusCode=400)
         else:
