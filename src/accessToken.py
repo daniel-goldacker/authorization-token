@@ -20,7 +20,7 @@ class AccessToken:
             createdDateUTC = datetime.utcnow()
             createdDateBrazil = DTConvert.dateUtcToDateTimeZone(createdDateUTC, ConfigFiles.BRAZIL_TIME_ZONE)
 
-            expireToken = createdDateUTC + timedelta(minutes=ConfigToken.TIME_EXPIRATION_TOKEN_IN_MINUTES)      
+            expireToken = createdDateUTC + timedelta(minutes=ConfigToken.TOKEN_TIME_EXPIRATION_IN_MINUTES)      
             expireTokenBrazil = DTConvert.dateUtcToDateTimeZone(expireToken, ConfigFiles.BRAZIL_TIME_ZONE)
 
             authorizationInfos = AccessAuthorization.getAuthorizationInfos(clientId, clientSecret)
@@ -30,7 +30,7 @@ class AccessToken:
                                               application_description=authorizationInfos.application_description, 
                                               iat=createdDateUTC, exp=expireToken)
             
-            tokenJWT = jwt.encode(userInfos.model_dump(), ConfigToken.PRIVATE_KEY, algorithm='HS256')
+            tokenJWT = jwt.encode(userInfos.model_dump(), ConfigToken.TOKEN_PRIVATE_KEY, algorithm=ConfigToken.TOKEN_JWT_ALGORITHMS)
             if isinstance(tokenJWT, bytes):
                 tokenJWT = tokenJWT.decode('utf-8')
 
@@ -72,7 +72,7 @@ class AccessToken:
     def decode(tokenJWT):
         if AccessToken.valid(tokenJWT):
             tokenJWT = removeTokenType(tokenJWT)
-            codedInformation = jwt.decode(tokenJWT, ConfigToken.PRIVATE_KEY, algorithms=['HS256'])
+            codedInformation = jwt.decode(tokenJWT, ConfigToken.TOKEN_PRIVATE_KEY, algorithms=[ConfigToken.TOKEN_JWT_ALGORITHMS])
 
             iat = datetime.utcfromtimestamp(codedInformation['iat'])
             iat = DTConvert.dateUtcToDateTimeZone(iat, ConfigFiles.BRAZIL_TIME_ZONE)
