@@ -8,17 +8,19 @@ To run it, follow the steps below:
 1. Place in directory **./src**:
 ```sh
 cd src
-```s
+```
+
 2. Install additional libraries:
 ```sh
 pip install -r requirements.txt
 ```
+
 3. Run the application:
 ```sh
 python manager.py
 ```
 
-3. access swagger:
+4. access swagger:
 ```sh
 http://localhost:8080/docs#
 ```
